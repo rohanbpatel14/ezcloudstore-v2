@@ -1,0 +1,31 @@
+# AI code review on every PR (AI-native workflow — see CLAUDE.md).
+# Requires repo secret ANTHROPIC_API_KEY; continue-on-error keeps early
+# scaffolding and forks green when the secret is absent.
+name: AI Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  claude-review:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.draft == false }}
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Claude Code review
+        uses: anthropics/claude-code-action@v1
+        continue-on-error: true
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Review this PR against the conventions in CLAUDE.md:
+            TDD (tests precede code), hexagonal boundaries, no secrets,
+            presigned-only file transfer, conventional commits.
+            Flag correctness bugs first, then boundary violations, then style.
