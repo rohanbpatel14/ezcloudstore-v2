@@ -13,6 +13,10 @@ public class InMemoryShareLinkRepository implements ShareLinkRepository {
 
     private final Map<ShareToken, ShareLink> links = new LinkedHashMap<>();
 
+    public void clear() {
+        links.clear();
+    }
+
     @Override
     public void save(ShareLink link) {
         links.put(link.token(), link);

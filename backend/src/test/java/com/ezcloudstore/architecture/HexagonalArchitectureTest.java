@@ -37,7 +37,12 @@ class HexagonalArchitectureTest {
                 .adapter("rest", "com.ezcloudstore.adapters.in.rest..")
                 .adapter("dynamodb", "com.ezcloudstore.adapters.out.dynamodb..")
                 .adapter("s3", "com.ezcloudstore.adapters.out.s3..")
+                .adapter("id", "com.ezcloudstore.adapters.out.id..")
                 .withOptionalLayers(true)
+                .ignoreDependency(
+                        com.tngtech.archunit.base.DescribedPredicate.describe("wiring config",
+                                javaClass -> javaClass.getPackageName().startsWith("com.ezcloudstore.config")),
+                        com.tngtech.archunit.base.DescribedPredicate.alwaysTrue())
                 .check(classes);
     }
 

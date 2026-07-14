@@ -12,6 +12,11 @@ public class FixedIdGenerator implements IdGenerator {
     private final Deque<String> fileIds = new ArrayDeque<>();
     private final Deque<String> tokens = new ArrayDeque<>();
 
+    public void clear() {
+        fileIds.clear();
+        tokens.clear();
+    }
+
     public FixedIdGenerator willReturnFileIds(String... ids) {
         for (String id : ids) {
             fileIds.add(id);

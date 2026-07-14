@@ -17,6 +17,11 @@ public class InMemoryFileRepository implements FileRepository {
     private final Map<FileId, StoredFile> files = new LinkedHashMap<>();
     private final Map<FileId, List<FileVersion>> versions = new LinkedHashMap<>();
 
+    public void clear() {
+        files.clear();
+        versions.clear();
+    }
+
     @Override
     public void save(StoredFile file) {
         files.put(file.id(), file);

@@ -24,6 +24,13 @@ public class FakeFileStorage implements FileStorage {
 
     private final Map<String, StoredObject> objects = new HashMap<>();
 
+    public void clear() {
+        uploadCalls.clear();
+        downloadCalls.clear();
+        deletedKeys.clear();
+        objects.clear();
+    }
+
     public void putObject(StorageKey key, StoredObject object) {
         objects.put(key.value(), object);
     }

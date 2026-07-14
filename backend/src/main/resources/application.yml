@@ -1,6 +1,21 @@
 spring:
   application:
     name: ezcloudstore
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Real value injected by the Lambda environment (CDK ApiStack).
+          # The placeholder keeps local/test contexts bootable; the decoder
+          # is lazy and never contacts the issuer until a JWT arrives.
+          issuer-uri: ${COGNITO_ISSUER_URI:https://cognito-idp.us-east-1.amazonaws.com/local-placeholder}
+
+ezcloudstore:
+  aws:
+    region: ${AWS_REGION:us-east-1}
+    table: ${EZCLOUDSTORE_TABLE:ezcloudstore}
+    files-bucket: ${EZCLOUDSTORE_FILES_BUCKET:ezcloudstore-files-local}
+  presign-ttl-minutes: 15
 
 management:
   endpoints:

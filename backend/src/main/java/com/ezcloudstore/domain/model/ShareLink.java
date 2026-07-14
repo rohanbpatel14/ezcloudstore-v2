@@ -35,6 +35,12 @@ public class ShareLink {
         return new ShareLink(token, fileId, owner, now, now.plus(ttl));
     }
 
+    /** Rehydrates persisted state without re-running TTL invariants. Adapters only. */
+    public static ShareLink restore(ShareToken token, FileId fileId, OwnerId owner,
+                                    Instant createdAt, Instant expiresAt) {
+        return new ShareLink(token, fileId, owner, createdAt, expiresAt);
+    }
+
     public boolean isExpired(Instant now) {
         return !now.isBefore(expiresAt);
     }

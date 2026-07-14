@@ -26,15 +26,15 @@ public class StoredFile {
     private String currentS3VersionId;
 
     private StoredFile(FileId id, OwnerId owner, String name, String description,
-                       long sizeBytes, String contentType, Instant now) {
+                       long sizeBytes, String contentType, Instant createdAt) {
         this.id = Objects.requireNonNull(id, "id");
         this.owner = Objects.requireNonNull(owner, "owner");
         this.name = name;
         this.description = description == null ? "" : description;
         this.sizeBytes = sizeBytes;
         this.contentType = contentType;
-        this.createdAt = Objects.requireNonNull(now, "now");
-        this.updatedAt = now;
+        this.createdAt = Objects.requireNonNull(createdAt, "createdAt");
+        this.updatedAt = createdAt;
         this.status = FileStatus.PENDING_UPLOAD;
     }
 
@@ -45,6 +45,17 @@ public class StoredFile {
         }
         requireValidSize(sizeBytes);
         return new StoredFile(id, owner, name, description, sizeBytes, contentType, now);
+    }
+
+    /** Rehydrates persisted state without re-running creation invariants. Adapters only. */
+    public static StoredFile restore(FileId id, OwnerId owner, String name, String description,
+                                     long sizeBytes, String contentType, FileStatus status,
+                                     Instant createdAt, Instant updatedAt, String currentS3VersionId) {
+        StoredFile file = new StoredFile(id, owner, name, description, sizeBytes, contentType, createdAt);
+        file.status = status;
+        file.updatedAt = updatedAt;
+        file.currentS3VersionId = currentS3VersionId;
+        return file;
     }
 
     public static void requireValidSize(long sizeBytes) {
