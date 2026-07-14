@@ -1,0 +1,73 @@
+# Deploys the full stack via CDK using GitHub OIDC (no long-lived AWS keys).
+# Required repo configuration:
+#   secret  AWS_DEPLOY_ROLE_ARN — IAM role trusted for this repo's OIDC
+#   var     AWS_REGION          — target region
+name: Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [backend/**, frontend/**, infra/**]
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Test and package backend (Lambda zip)
+        run: ./mvnw -B verify
+
+      - name: Placeholder frontend build (real build after API outputs exist)
+        working-directory: frontend
+        run: npm ci && npm run build
+
+      - name: Deploy data, auth, and API stacks
+        working-directory: infra
+        run: |
+          npm install -g aws-cdk
+          cdk deploy EzCloudStoreStateful EzCloudStoreAuth EzCloudStoreApi \
+            --require-approval never --outputs-file outputs.json
+
+      - name: Rebuild frontend against live API and auth outputs
+        working-directory: frontend
+        env:
+          AWS_REGION: ${{ vars.AWS_REGION }}
+        run: |
+          API_URL=$(jq -r '.EzCloudStoreApi.ApiUrl' ../infra/outputs.json)
+          CLIENT_ID=$(jq -r '.EzCloudStoreAuth.SpaClientId' ../infra/outputs.json)
+          DOMAIN_PREFIX=$(jq -r '.EzCloudStoreAuth.HostedUiDomainName' ../infra/outputs.json)
+          VITE_API_URL="$API_URL" \
+          VITE_COGNITO_CLIENT_ID="$CLIENT_ID" \
+          VITE_COGNITO_DOMAIN="${DOMAIN_PREFIX}.auth.${AWS_REGION}.amazoncognito.com" \
+          npm run build
+
+      - name: Deploy web stack (SPA + CloudFront)
+        working-directory: infra
+        run: cdk deploy EzCloudStoreWeb --require-approval never
