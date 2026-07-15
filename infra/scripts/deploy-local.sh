@@ -14,8 +14,8 @@ echo "==> Building backend Lambda zip"
 echo "==> Placeholder frontend build (Web stack needs a dist to ship)"
 (cd ../frontend && npm run build >/dev/null)
 
-echo "==> Deploying Stateful + Auth + Api (Web deploys as a dependency)"
-cdk deploy EzCloudStoreStateful EzCloudStoreAuth EzCloudStoreApi \
+echo "==> Deploying Stateful + Auth + Api + Observability (Web deploys as a dependency)"
+cdk deploy EzCloudStoreStateful EzCloudStoreAuth EzCloudStoreApi EzCloudStoreObservability \
   --require-approval never --outputs-file outputs.json
 
 echo "==> Rebuilding frontend against live outputs"

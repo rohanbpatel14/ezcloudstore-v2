@@ -2,20 +2,20 @@
 
 Serverless cloud file storage on AWS — a ground-up rebuild of my 2021 CMPE-281 project with 2026 engineering standards: Java 21, Spring Boot 3 on Lambda (SnapStart), DynamoDB single-table, S3 presigned transfers, Cognito auth, CDK-in-Java infrastructure, and TDD throughout.
 
-**Live:** https://d2ymqh0865i28q.cloudfront.net · **API:** https://j9ac8b4mj5.execute-api.us-east-2.amazonaws.com/actuator/health · **Region:** us-east-2
+**Live app:** https://d2ymqh0865i28q.cloudfront.net · **API base:** https://j9ac8b4mj5.execute-api.us-east-2.amazonaws.com · **Region:** us-east-2 (AWS free tier)
 
 ```
-Browser ──► CloudFront ──► S3 (React SPA)
+Browser ──► CloudFront (geo-restricted) ──► S3 (React SPA)
    │
-   ├── Cognito Hosted UI (email/password + Google) ──► JWT
+   ├── Cognito Hosted UI (email/password + Google federation) ──► JWT
    │
-   └── API Gateway HTTP API (JWT authorizer) ──► Lambda (Spring Boot 3, Java 21, SnapStart)
+   └── API Gateway HTTP API (JWT authorizer) ──► Lambda (Spring Boot 3, Java 21, SnapStart, X-Ray)
                                                     │
                               ┌─────────────────────┼──────────────────┐
                               ▼                     ▼                  ▼
-                        DynamoDB (single table)   S3 files bucket    CloudWatch/X-Ray
-                        metadata + share links    versioning ON      logs, traces, metrics
-                        GSI for admin listing     presigned PUT/GET
+                        DynamoDB (single table)   S3 files bucket    CloudWatch alarms +
+                        metadata + share links    versioning ON      SNS alerts + dashboard
+                        GSI for admin listing     presigned PUT/GET   + AWS Budgets guard
 ```
 
 ## Why a rebuild?

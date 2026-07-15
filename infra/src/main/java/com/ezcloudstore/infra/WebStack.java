@@ -7,6 +7,7 @@ import software.amazon.awscdk.StackProps;
 import software.amazon.awscdk.services.cloudfront.BehaviorOptions;
 import software.amazon.awscdk.services.cloudfront.Distribution;
 import software.amazon.awscdk.services.cloudfront.ErrorResponse;
+import software.amazon.awscdk.services.cloudfront.GeoRestriction;
 import software.amazon.awscdk.services.cloudfront.ViewerProtocolPolicy;
 import software.amazon.awscdk.services.cloudfront.origins.S3BucketOrigin;
 import software.amazon.awscdk.services.s3.BlockPublicAccess;
@@ -44,6 +45,9 @@ public class WebStack extends Stack {
                         .viewerProtocolPolicy(ViewerProtocolPolicy.REDIRECT_TO_HTTPS)
                         .build())
                 .defaultRootObject("index.html")
+                // OFAC-sanctioned countries — CloudFront geo-restriction is free.
+                // Supersedes the original's Cuba-only block with the full embargo list.
+                .geoRestriction(GeoRestriction.denylist("CU", "IR", "KP", "SY"))
                 .errorResponses(List.of(
                         ErrorResponse.builder().httpStatus(403)
                                 .responseHttpStatus(200).responsePagePath("/index.html").build(),

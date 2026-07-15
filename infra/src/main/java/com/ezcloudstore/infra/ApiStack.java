@@ -18,6 +18,7 @@ import software.amazon.awscdk.services.lambda.Code;
 import software.amazon.awscdk.services.lambda.Function;
 import software.amazon.awscdk.services.lambda.Runtime;
 import software.amazon.awscdk.services.lambda.SnapStartConf;
+import software.amazon.awscdk.services.lambda.Tracing;
 import software.amazon.awscdk.services.lambda.Version;
 import software.amazon.awscdk.services.s3.Bucket;
 import software.constructs.Construct;
@@ -33,6 +34,7 @@ import java.util.Map;
 public class ApiStack extends Stack {
 
     private final HttpApi httpApi;
+    private final Function handler;
 
     public ApiStack(Construct scope, String id, StackProps props,
                     Table table, Bucket filesBucket,
@@ -42,13 +44,14 @@ public class ApiStack extends Stack {
 
         String issuer = "https://cognito-idp." + getRegion() + ".amazonaws.com/" + userPool.getUserPoolId();
 
-        Function handler = Function.Builder.create(this, "ApiHandler")
+        this.handler = Function.Builder.create(this, "ApiHandler")
                 .runtime(Runtime.JAVA_21)
                 .handler("com.ezcloudstore.lambda.StreamLambdaHandler::handleRequest")
                 .code(Code.fromAsset("../backend/target/ezcloudstore-backend-2.0.0-SNAPSHOT-lambda.zip"))
                 .memorySize(1536)
                 .timeout(Duration.seconds(30))
                 .snapStart(SnapStartConf.ON_PUBLISHED_VERSIONS)
+                .tracing(Tracing.ACTIVE)
                 .environment(Map.of(
                         "EZCLOUDSTORE_TABLE", table.getTableName(),
                         "EZCLOUDSTORE_FILES_BUCKET", filesBucket.getBucketName(),
@@ -105,5 +108,9 @@ public class ApiStack extends Stack {
 
     public HttpApi httpApi() {
         return httpApi;
+    }
+
+    public Function handler() {
+        return handler;
     }
 }
