@@ -26,3 +26,9 @@ management:
     health:
       probes:
         enabled: true
+  health:
+    # The diskSpace indicator guards long-running servers against a filling
+    # disk; on ephemeral Lambda (read-only FS, fresh container per cold start)
+    # it reports DOWN spuriously and drags the whole health group down. Off.
+    diskspace:
+      enabled: false

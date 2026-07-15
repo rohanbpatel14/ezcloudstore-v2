@@ -2,6 +2,8 @@
 
 Serverless cloud file storage on AWS — a ground-up rebuild of my 2021 CMPE-281 project with 2026 engineering standards: Java 21, Spring Boot 3 on Lambda (SnapStart), DynamoDB single-table, S3 presigned transfers, Cognito auth, CDK-in-Java infrastructure, and TDD throughout.
 
+**Live:** https://d2ymqh0865i28q.cloudfront.net · **API:** https://j9ac8b4mj5.execute-api.us-east-2.amazonaws.com/actuator/health · **Region:** us-east-2
+
 ```
 Browser ──► CloudFront ──► S3 (React SPA)
    │
@@ -49,4 +51,4 @@ Requires: JDK 21+, Node 20+, Docker (integration tests), AWS CDK CLI.
 
 ## Status
 
-🚧 v1 rebuild in progress — see [ROADMAP](docs/ROADMAP.md).
+✅ v1 shipped and live on AWS (us-east-2), deployed from CDK. Next features tracked in [ROADMAP](docs/ROADMAP.md).

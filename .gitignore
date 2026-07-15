@@ -21,3 +21,6 @@ infra/cdk.out/
 # Env
 .env
 .env.*
+
+# CDK deploy outputs
+infra/outputs.json
